@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Juz' del Corán</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+        
+        .arabic-title {
+            text-align: center;
+            font-size: 20px;
+            color: #764ba2;
+            margin-bottom: 25px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .output {
+            margin-top: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            display: none;
+        }
+        
+        .output.show {
+            display: block;
+        }
+        
+        .whatsapp-message {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #25D366;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            font-size: 14px;
+        }
+        
+        .copy-btn {
+            margin-top: 15px;
+            background: #25D366;
+            padding: 10px;
+            font-size: 14px;
+        }
+        
+        .copy-btn:hover {
+            background: #20bd5a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📖 Calculadora de Juz' del Corán</h1>
+        <div class="arabic-title">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيم</div>
+        <div style="text-align: center; color: #888; font-size: 12px; margin-bottom: 20px;">
+            By TheLightOfSunnah - abidan
+        </div>
+        
+        <div class="input-group">
+            <label for="juzNumber">Número de Juz' (1-30):</label>
+            <input type="number" id="juzNumber" min="1" max="30" value="1" placeholder="Ingrese el número de Juz'">
+        </div>
+        
+        <button onclick="generateMessage()">✨ Generar Mensaje</button>
+        
+        <div class="output" id="output">
+            <div class="whatsapp-message" id="message"></div>
+            <button class="copy-btn" onclick="copyMessage()">📋 Copiar Mensaje</button>
+        </div>
+    </div>
+
+    <script>
+        const juzData = [
+            { juz: 1, ahzab: [1, 2], start: "Al-Fatiha 1:1", end: "Al-Baqarah 2:141" },
+            { juz: 2, ahzab: [3, 4], start: "Al-Baqarah 2:142", end: "Al-Baqarah 2:252" },
+            { juz: 3, ahzab: [5, 6], start: "Al-Baqarah 2:253", end: "Ali 'Imran 3:92" },
+            { juz: 4, ahzab: [7, 8], start: "Ali 'Imran 3:93", end: "An-Nisa 4:23" },
+            { juz: 5, ahzab: [9, 10], start: "An-Nisa 4:24", end: "An-Nisa 4:147" },
+            { juz: 6, ahzab: [11, 12], start: "An-Nisa 4:148", end: "Al-Ma'idah 5:81" },
+            { juz: 7, ahzab: [13, 14], start: "Al-Ma'idah 5:82", end: "Al-An'am 6:110" },
+            { juz: 8, ahzab: [15, 16], start: "Al-An'am 6:111", end: "Al-A'raf 7:87" },
+            { juz: 9, ahzab: [17, 18], start: "Al-A'raf 7:88", end: "Al-Anfal 8:40" },
+            { juz: 10, ahzab: [19, 20], start: "Al-Anfal 8:41", end: "At-Tawbah 9:92" },
+            { juz: 11, ahzab: [21, 22], start: "At-Tawbah 9:93", end: "Hud 11:5" },
+            { juz: 12, ahzab: [23, 24], start: "Hud 11:6", end: "Yusuf 12:52" },
+            { juz: 13, ahzab: [25, 26], start: "Yusuf 12:53", end: "Ibrahim 14:52" },
+            { juz: 14, ahzab: [27, 28], start: "Al-Hijr 15:1", end: "An-Nahl 16:128" },
+            { juz: 15, ahzab: [29, 30], start: "Al-Isra 17:1", end: "Al-Kahf 18:74" },
+            { juz: 16, ahzab: [31, 32], start: "Al-Kahf 18:75", end: "Ta-Ha 20:135" },
+            { juz: 17, ahzab: [33, 34], start: "Al-Anbiya 21:1", end: "Al-Hajj 22:78" },
+            { juz: 18, ahzab: [35, 36], start: "Al-Mu'minun 23:1", end: "Al-Furqan 25:20" },
+            { juz: 19, ahzab: [37, 38], start: "Al-Furqan 25:21", end: "An-Naml 27:55" },
+            { juz: 20, ahzab: [39, 40], start: "An-Naml 27:56", end: "Al-'Ankabut 29:45" },
+            { juz: 21, ahzab: [41, 42], start: "Al-'Ankabut 29:46", end: "Al-Ahzab 33:30" },
+            { juz: 22, ahzab: [43, 44], start: "Al-Ahzab 33:31", end: "Ya-Sin 36:27" },
+            { juz: 23, ahzab: [45, 46], start: "Ya-Sin 36:28", end: "Az-Zumar 39:31" },
+            { juz: 24, ahzab: [47, 48], start: "Az-Zumar 39:32", end: "Fussilat 41:46" },
+            { juz: 25, ahzab: [49, 50], start: "Fussilat 41:47", end: "Al-Jathiyah 45:37" },
+            { juz: 26, ahzab: [51, 52], start: "Al-Ahqaf 46:1", end: "Adh-Dhariyat 51:30" },
+            { juz: 27, ahzab: [53, 54], start: "Adh-Dhariyat 51:31", end: "Al-Hadid 57:29" },
+            { juz: 28, ahzab: [55, 56], start: "Al-Mujadila 58:1", end: "At-Tahrim 66:12" },
+            { juz: 29, ahzab: [57, 58], start: "Al-Mulk 67:1", end: "Al-Mursalat 77:50" },
+            { juz: 30, ahzab: [59, 60], start: "An-Naba 78:1", end: "An-Nas 114:6" }
+        ];
+
+        function generateMessage() {
+            const juzNumber = parseInt(document.getElementById('juzNumber').value);
+            
+            if (juzNumber < 1 || juzNumber > 30 || isNaN(juzNumber)) {
+                alert('Por favor, ingrese un número válido entre 1 y 30');
+                return;
+            }
+
+            const data = juzData[juzNumber - 1];
+            const today = new Date();
+            const dateStr = today.toLocaleDateString('es-ES', { 
+                day: 'numeric', 
+                month: 'long', 
+                year: 'numeric' 
+            });
+
+            const message = `✨ بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيم ✨
+
+📅 ${dateStr}
+
+📖 Juz' ${data.juz}
+🔢 Ahzab: ${data.ahzab[0]} y ${data.ahzab[1]}
+
+📌 Rango de lectura:
+Desde: ${data.start}
+Hasta: ${data.end}
+
+جزاك الله خيرا لقراءتك 📖✨
+
+━━━━━━━━━━━━━━━━
+✅ Juz' ${data.juz}, Ahzab ${data.ahzab[0]}-${data.ahzab[1]} finalizados ✅
+
+💫 By TheLightOfSunnah - abidan`;
+
+            document.getElementById('message').textContent = message;
+            document.getElementById('output').classList.add('show');
+        }
+
+        function copyMessage() {
+            const message = document.getElementById('message').textContent;
+            navigator.clipboard.writeText(message).then(() => {
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = '✅ ¡Copiado!';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                }, 2000);
+            });
+        }
+
+        // Generar mensaje automáticamente al cargar
+        window.onload = () => generateMessage();
+    </script>
+</body>
+</html>
